@@ -27,8 +27,18 @@ int DA_size(DA *da)
   return da->count;
 }
 
+void DA_resize(DA *da)
+{
+  da->capacity = da->capacity * 2;
+  da->items = realloc(da->items, da->capacity * sizeof(void *));
+}
+
 void DA_push(DA *da, void *x)
 {
+  if (da->count >= da->capacity / 2)
+  {
+    DA_resize(da);
+  }
   da->items[da->count++] = x;
 }
 
