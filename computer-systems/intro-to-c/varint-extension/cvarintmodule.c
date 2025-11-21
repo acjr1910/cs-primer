@@ -28,7 +28,7 @@ static PyObject *cvarint_encode(PyObject *self, PyObject *args)
 
 static PyObject *cvarint_decode(PyObject *self, PyObject *args)
 {
-    int n = 0;
+    unsigned long n = 0;
     Py_buffer varint;
 
     if (!PyArg_ParseTuple(args, "y*", &varint))
