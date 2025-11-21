@@ -1,15 +1,13 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-// https://docs.python.org/3/extending/extending.html
-
 static PyObject *cvarint_encode(PyObject *self, PyObject *args)
 {
     int i = 0;
-    int n, part;
+    unsigned long n, part;
     unsigned char out[10];
 
-    if (!PyArg_ParseTuple(args, "b", &n))
+    if (!PyArg_ParseTuple(args, "k", &n))
     {
         return NULL;
     };
@@ -30,7 +28,22 @@ static PyObject *cvarint_encode(PyObject *self, PyObject *args)
 
 static PyObject *cvarint_decode(PyObject *self, PyObject *args)
 {
-    return NULL;
+    int n = 0;
+    Py_buffer varint;
+
+    if (!PyArg_ParseTuple(args, "y*", &varint))
+    {
+        return NULL;
+    };
+
+    for (int i = varint.len - 1; i >= 0; i--)
+    {
+        n <<= 7;
+        n |= ((char *)varint.buf)[i] & 0x7F;
+    }
+
+    PyBuffer_Release(&varint);
+    return PyLong_FromUnsignedLong(n);
 }
 
 static PyMethodDef CVarintMethods[] = {
@@ -44,3 +57,8 @@ static struct PyModuleDef cvarintmodule = {
     "A C implementation of protobuf varint encoding", -1, CVarintMethods};
 
 PyMODINIT_FUNC PyInit_cvarint(void) { return PyModule_Create(&cvarintmodule); }
+
+// DOCS
+// https://docs.python.org/3/extending/extending.html
+// https://docs.python.org/3/c-api/arg.html
+// https://docs.python.org/3/c-api/stable.html
